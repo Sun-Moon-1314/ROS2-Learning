@@ -1,0 +1,5 @@
+# Default initial positions for my_robot's ros2_control fake system
+
+initial_positions:
+  arm_base_forearm_joint: 0
+  forearm_hand_joint: 0

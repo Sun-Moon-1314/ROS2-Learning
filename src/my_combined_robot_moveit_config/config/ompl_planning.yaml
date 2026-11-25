@@ -1,0 +1,33 @@
+# 使用 OMPL 规划插件
+planning_plugin: ompl_interface/OMPLPlanner
+
+start_state_max_bounds_error: 0.1
+jiggle_fraction: 0.05
+
+# 保留 Humble 默认的规划请求处理器
+request_adapters: >-
+  default_planner_request_adapters/AddTimeOptimalParameterization
+  default_planner_request_adapters/ResolveConstraintFrames
+  default_planner_request_adapters/FixWorkspaceBounds
+  default_planner_request_adapters/FixStartStateBounds
+  default_planner_request_adapters/FixStartStateCollision
+  default_planner_request_adapters/FixStartStatePathConstraints
+  chomp/OptimizerAdapter
+
+# 定义可用的 OMPL 规划算法
+planner_configs:
+  RRTConnect:
+    type: geometric::RRTConnect
+    range: 0.0
+
+  RRTstar:
+    type: geometric::RRTstar
+    range: 0.0
+    goal_bias: 0.05
+
+# arm 是你在 MoveIt 中定义的规划组名称
+arm:
+  default_planner_config: RRTConnect
+  planner_configs:
+    - RRTConnect
+    - RRTstar

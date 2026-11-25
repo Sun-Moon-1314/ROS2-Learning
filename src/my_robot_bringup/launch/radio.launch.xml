@@ -1,0 +1,18 @@
+<launch>
+    <node pkg="my_py_pkg" exec="robot_news_station" name="robot_news_station_giskard">
+        <param from="$(find-pkg-share my_robot_bringup)/config/radio_config.yaml" />
+    </node>
+    <node pkg="my_py_pkg" exec="robot_news_station" name="robot_news_station_et300">
+        <param from="$(find-pkg-share my_robot_bringup)/config/radio_config.yaml" />
+    </node>
+    <node pkg="my_py_pkg" exec="robot_news_station" name="robot_news_station_optimus">
+        <param from="$(find-pkg-share my_robot_bringup)/config/radio_config.yaml" />
+    </node>
+    <node pkg="my_py_pkg" exec="robot_news_station" name="robot_news_station_barbobee">
+        <param from="$(find-pkg-share my_robot_bringup)/config/radio_config.yaml" />
+    </node>
+    <node pkg="my_py_pkg" exec="robot_news_station" name="robot_news_station_jazz">
+        <param from="$(find-pkg-share my_robot_bringup)/config/radio_config.yaml" /> 
+    </node>
+    <node pkg="my_py_pkg" exec="smartphone" />
+</launch>

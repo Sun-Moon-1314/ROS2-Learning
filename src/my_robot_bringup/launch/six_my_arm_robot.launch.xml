@@ -1,0 +1,69 @@
+<launch>
+      <let name="urdf_path"
+            value="$(find-pkg-share my_robot_description)/urdf/six_my_arm.xacro"/>
+
+      <let name="rviz_config_path"
+            value="$(find-pkg-share my_robot_description)/rviz/six_arm_config.rviz"/>
+
+      <let name="ros2_controller_path"
+            value="$(find-pkg-share my_robot_bringup)/config/six_arm_ros2_controllers.yaml"/>
+
+      <arg name="use_mock_components" default="true" />
+            <!-- 只生成一次机器人描述，供多个节点使用 -->
+      <let name="robot_description"
+            value="$(command 'xacro $(var urdf_path)')"/>
+
+      <!-- 发布 TF -->
+      <node pkg="robot_state_publisher"
+            exec="robot_state_publisher"
+            output="screen">
+            <param name="robot_description"
+                   value="$(var robot_description)"/>
+      </node>
+
+      <!-- 启动 ros2_control 控制器管理器 -->
+      <node pkg="controller_manager"
+            exec="ros2_control_node"
+            output="screen">
+
+            <param name="robot_description"
+                  value="$(var robot_description)"/>
+
+            <param from="$(var ros2_controller_path)"/>
+      </node>
+
+      <!-- 发布关节状态 -->
+      <node pkg="controller_manager"
+            exec="spawner"
+            output="screen"
+            args="joint_state_broadcaster
+                  --controller-manager
+                  /controller_manager"/>
+
+      <!-- 机械臂控制器 -->
+      <node pkg="controller_manager"
+            exec="spawner"
+            output="screen"
+            args="arm_controller
+                  --controller-manager
+                  /controller_manager"/>
+
+      <!-- 夹爪控制器 -->
+      <node pkg="controller_manager"
+            exec="spawner"
+            output="screen"
+            args="gripper_controller
+                  --controller-manager
+                  /controller_manager"/>
+
+      <!-- MoveIt 的 move_group 节点 -->
+      <include file="$(find-pkg-share my_robot_moveit_config)/launch/move_group.launch.py"/>
+
+      <!-- <node pkg="my_robot_commander_cpp" exec="commander_template" /> -->
+
+      <!-- RViz2 -->
+      <node pkg="rviz2"
+            exec="rviz2"
+            output="screen"
+            args="-d $(var rviz_config_path)"/>
+</launch>

@@ -1,0 +1,70 @@
+<launch>
+    <let name="urdf_path"
+        value="$(find-pkg-share my_robot_description)/urdf/my_combined_robot.xacro"/>
+
+    <let name="rviz_config_path"
+        value="$(find-pkg-share my_robot_description)/rviz/urdf_config.rviz"/>
+
+    <let name="ros2_controller_path"
+        value="$(find-pkg-share my_robot_bringup)/config/my_combined_controllers.yaml"/>
+
+    <let name="robot_description"
+        value="$(command 'xacro $(var urdf_path)')"/>
+
+    <node pkg="robot_state_publisher"
+          exec="robot_state_publisher"
+          output="screen">
+        <param name="robot_description"
+               value="$(var robot_description)"/>
+    </node>
+
+    <node pkg="controller_manager"
+            exec="ros2_control_node"
+            output="screen">
+
+        <!-- 加载控制器配置 -->
+        <param from="$(var ros2_controller_path)"/>
+
+        <!-- 将控制器管理器的描述话题连接到发布者的话题 -->
+        <remap from="~/robot_description" to="/robot_description"/>
+    </node>
+
+    <node pkg="controller_manager"
+          exec="spawner"
+          output="screen"
+          args="joint_state_broadcaster
+                --controller-manager
+                /controller_manager"/>
+    
+    <node pkg="controller_manager"
+        exec="spawner"
+        output="screen"
+        args="diff_drive_controller
+            --controller-manager
+            /controller_manager"/>
+
+    <node pkg="controller_manager"
+        exec="spawner"
+        output="screen"
+        args="my_pid_controller
+            --controller-manager
+            /controller_manager"/>
+
+    <include file="$(find-pkg-share my_combined_robot_moveit_config)/launch/move_group.launch.py"/>
+
+    <node pkg="my_robot_commander_cpp"
+          exec="pid_trajectory_adapter"
+          output="screen" >
+    </node>
+
+    <node pkg="my_robot_commander_cpp"
+          exec="commander_combined"
+          output="screen" >
+    </node>
+
+    <node pkg="rviz2"
+          exec="rviz2"
+          output="screen"
+          args="-d $(var rviz_config_path)"/>
+    
+</launch>
